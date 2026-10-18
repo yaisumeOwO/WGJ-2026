@@ -5,7 +5,9 @@ public class Dialogo : MonoBehaviour
 {
     public string[] dialogos;
     public TextMeshProUGUI dialogoEnPantalla;
+    public GameObject butDialogo;
     public int index= 0;
+    public int indexFinal = 0;
 
 
     public void SetDialogue(int indice)
@@ -15,20 +17,25 @@ public class Dialogo : MonoBehaviour
 
     public void nextDialogue()
     {
-        index++;
-        SetDialogue(index);
+        if (index < indexFinal)
+        {
+            index++;
+            SetDialogue(index);
+        }
+        else
+        {
+            butDialogo.SetActive(false);
+        }
+        
       
     }
 
-    public void startDialogue() { }
-    void Start()
+    public void startDialogue(int inicio, int fin) 
     {
-        SetDialogue(0);
+        index = inicio;
+        indexFinal = fin;
+        butDialogo.SetActive(true);
+        SetDialogue(index);
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
+    
 }
