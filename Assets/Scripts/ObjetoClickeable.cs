@@ -2,6 +2,7 @@ using UnityEngine;
 public class ObjetoClickeable : MonoBehaviour
 {
     public Dialogo sistemaDeDialogo;
+    public bool esValido = true;
     public int precio;
     public int indiceInicio;
     public int indiceFin;

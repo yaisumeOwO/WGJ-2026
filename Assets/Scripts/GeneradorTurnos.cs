@@ -1,7 +1,17 @@
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+
+
+
 public class GeneradorTurnos : MonoBehaviour
 {
+    [Header("Economía y UI")]
+    public int dinero = 100;
+    public TextMeshProUGUI ContadorPesos;
+    public PanelMover panelInferior;
+    public TextMeshProUGUI textoLibreta;
+
     [Header("Sprites de los 3 Personajes")]
     public SpriteRenderer spriteRendererCliente;
     public Sprite spriteNino;       
@@ -13,6 +23,41 @@ public class GeneradorTurnos : MonoBehaviour
     [Header("Objetos para los demás personajes")]
     public List<GameObject> objetosGenerales; 
     public GameObject objetoSeleccionado;
+
+    public void AceptarTrato()
+    {
+        if (objetoSeleccionado != null)
+        {
+            ObjetoClickeable info = objetoSeleccionado.GetComponent<ObjetoClickeable>();
+            if (info.esValido)
+            {
+                dinero += info.precio;
+            }
+            else
+            {
+                dinero -= info.precio;
+            }
+        }
+        FinalizarTurno();
+    }
+    public void RechazarTrato()
+    {
+       
+        FinalizarTurno();
+    }
+
+    private void FinalizarTurno()
+    {
+        if (ContadorPesos != null)
+        {
+            ContadorPesos.text = "$" + dinero;
+        }
+        if (panelInferior != null)
+        {
+            panelInferior.Bajar();
+        }
+        GenerarNuevoClienteYObjeto();
+    }
 
     public void GenerarNuevoClienteYObjeto()
     {
@@ -38,6 +83,12 @@ public class GeneradorTurnos : MonoBehaviour
         }
 
         objetoSeleccionado.SetActive(true);
+
+        ObjetoClickeable infoObjeto = objetoSeleccionado.GetComponent<ObjetoClickeable>();
+
+        textoLibreta.text = infoObjeto.textoChecklist;
+        infoObjeto.sistemaDeDialogo.startDialogue(infoObjeto.indiceInicio, infoObjeto.indiceFin);
+
         objetoSeleccionado.GetComponent<ObjetoClickeable>().sistemaDeDialogo.startDialogue(
             objetoSeleccionado.GetComponent<ObjetoClickeable>().indiceInicio,
             objetoSeleccionado.GetComponent<ObjetoClickeable>().indiceFin
@@ -46,6 +97,10 @@ public class GeneradorTurnos : MonoBehaviour
 
     void Start()
     {
+        if (ContadorPesos != null)
+        {
+            ContadorPesos.text = "$" + dinero;
+        }
         GenerarNuevoClienteYObjeto();
     }
 }
