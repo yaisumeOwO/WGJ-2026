@@ -67,7 +67,7 @@ public class CameraZoomIn : MonoBehaviour
         }
     }
 
-    void Lateupdate()
+    void LateUpdate()
     {
         Vector3 targetPosition = transform.position;
 
