@@ -10,19 +10,33 @@ public class CameraZoomIn : MonoBehaviour
     [SerializeField]
     private float zoom=10;
 
+    //limitar paneo
+    public Vector2 minLimit;
+    public Vector2 maxLimit;
+
+    //limitar zoom
+    public float minZoom = 3f;
+    public float maxZoom = 10f;
+
     private Vector3 dragOrigin;
+    //declarar variable bool de continuar desde el script de cliente/dialogos
+
+
 
     // Update is called once per frame
     void Update()
     {
+        //if (continuar=true) {
+
+        //    
+        //}
         PanCamera();
         ScrollZoom();   
         
     }
 
     private void PanCamera()
-    {
-        //save mouse position in world space
+    { 
         if (Input.GetMouseButtonDown(0))
         {
             dragOrigin = cam.ScreenToWorldPoint(Input.mousePosition);
@@ -33,11 +47,9 @@ public class CameraZoomIn : MonoBehaviour
         if (Input.GetMouseButton(0))
         {
             Vector3 difference = dragOrigin - cam.ScreenToWorldPoint(Input.mousePosition);
-
-        
-            print("origin" + dragOrigin + "nesPosition" + cam.ScreenToWorldPoint(Input.mousePosition) + "=difference" + difference);
             //move camera by distance
             cam.transform.position += difference;
+           
 
         }
     }
@@ -55,4 +67,14 @@ public class CameraZoomIn : MonoBehaviour
         }
     }
 
+    void Lateupdate()
+    {
+        Vector3 targetPosition = transform.position;
+
+        //delimitar el paneo
+        targetPosition.x=Mathf.Clamp(targetPosition.x, minLimit.x, maxLimit.x);
+        targetPosition.y= Mathf.Clamp(targetPosition.y, minLimit.y, maxLimit.y);
+
+        transform.position= targetPosition;
+    }
 }
