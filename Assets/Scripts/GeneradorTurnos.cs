@@ -11,6 +11,8 @@ public class GeneradorTurnos : MonoBehaviour
     public TextMeshProUGUI ContadorPesos;
     public PanelMover panelInferior;
     public TextMeshProUGUI textoLibreta;
+    public GameObject panelGameOver;
+
 
     [Header("Sprites de los 3 Personajes")]
     public SpriteRenderer spriteRendererCliente;
@@ -24,25 +26,23 @@ public class GeneradorTurnos : MonoBehaviour
     public List<GameObject> objetosGenerales; 
     public GameObject objetoSeleccionado;
 
+    private int ultimoPersonaje = -1;
+    private GameObject ultimoObjeto = null;
+
     public void AceptarTrato()
     {
         if (objetoSeleccionado != null)
         {
             ObjetoClickeable info = objetoSeleccionado.GetComponent<ObjetoClickeable>();
-            if (info.esValido)
-            {
-                dinero += info.precio;
-            }
-            else
-            {
-                dinero -= info.precio;
-            }
+            dinero -= info.precio;
+            Debug.Log("Trato ACEPTADO. Compraste: " + objetoSeleccionado.name + " por $" + info.precio + ". Dinero restante: $" + dinero);
         }
         FinalizarTurno();
     }
+
     public void RechazarTrato()
     {
-       
+        Debug.Log("Trato RECHAZADO. Pasando al siguiente cliente. Dinero actual: $" + dinero);
         FinalizarTurno();
     }
 
@@ -56,7 +56,51 @@ public class GeneradorTurnos : MonoBehaviour
         {
             panelInferior.Bajar();
         }
+
+        if (dinero < ObtenerPrecioMasBarato())
+        {
+            GameOverPorBancarrota();
+            return; // Detenemos aquí para que ya no genere otro cliente
+        }
+
         GenerarNuevoClienteYObjeto();
+    }
+
+    private int ObtenerPrecioMasBarato()
+    {
+        int masBarato = int.MaxValue;
+        foreach (GameObject obj in objetosCorrea)
+        {
+            if (obj != null)
+            {
+                int p = obj.GetComponent<ObjetoClickeable>().precio;
+                if (p < masBarato) masBarato = p;
+            }
+        }
+        foreach (GameObject obj in objetosGenerales)
+        {
+            if (obj != null)
+            {
+                int p = obj.GetComponent<ObjetoClickeable>().precio;
+                if (p < masBarato) masBarato = p;
+            }
+        }
+        return masBarato;
+    }
+
+    private void GameOverPorBancarrota()
+    {
+        Debug.Log("¡Game Over! Te quedaste en bancarrota.");
+
+        if (objetoSeleccionado != null)
+        {
+            objetoSeleccionado.SetActive(false);
+        }
+
+        if (panelGameOver != null)
+        {
+            panelGameOver.SetActive(true);
+        }
     }
 
     public void GenerarNuevoClienteYObjeto()
@@ -65,7 +109,14 @@ public class GeneradorTurnos : MonoBehaviour
         {
             objetoSeleccionado.SetActive(false);
         }
+
         int personajeRandom = Random.Range(0, 3);
+        while (personajeRandom == ultimoPersonaje)
+        {
+            personajeRandom = Random.Range(0, 3);
+        }
+        ultimoPersonaje = personajeRandom;
+
         if (personajeRandom == 0)
         {
             spriteRendererCliente.sprite = spriteNino;
@@ -78,21 +129,32 @@ public class GeneradorTurnos : MonoBehaviour
                 spriteRendererCliente.sprite = spritePersonaje2;
             else
                 spriteRendererCliente.sprite = spritePersonaje3;
+
             int indiceObjeto = Random.Range(0, objetosGenerales.Count);
+            if (objetosGenerales.Count > 1)
+            {
+                while (objetosGenerales[indiceObjeto] == ultimoObjeto)
+                {
+                    indiceObjeto = Random.Range(0, objetosGenerales.Count);
+                }
+            }
             objetoSeleccionado = objetosGenerales[indiceObjeto];
         }
 
+        ultimoObjeto = objetoSeleccionado;
         objetoSeleccionado.SetActive(true);
 
         ObjetoClickeable infoObjeto = objetoSeleccionado.GetComponent<ObjetoClickeable>();
 
-        textoLibreta.text = infoObjeto.textoChecklist;
-        infoObjeto.sistemaDeDialogo.startDialogue(infoObjeto.indiceInicio, infoObjeto.indiceFin);
+        if (textoLibreta != null)
+        {
+            textoLibreta.text = infoObjeto.textoChecklist;
+        }
 
-        objetoSeleccionado.GetComponent<ObjetoClickeable>().sistemaDeDialogo.startDialogue(
-            objetoSeleccionado.GetComponent<ObjetoClickeable>().indiceInicio,
-            objetoSeleccionado.GetComponent<ObjetoClickeable>().indiceFin
-        );
+        if (infoObjeto.sistemaDeDialogo != null)
+        {
+            infoObjeto.sistemaDeDialogo.startDialogue(infoObjeto.indiceInicio, infoObjeto.indiceFin);
+        }
     }
 
     void Start()
