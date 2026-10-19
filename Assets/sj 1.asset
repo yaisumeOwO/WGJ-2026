@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebbfc975615bae946b4ab62008ab9dc7, type: 3}
   m_Name: sj 1
   m_EditorClassIdentifier: Assembly-CSharp::sj
-  dialogos: []
+  dialogos:
+  - 
