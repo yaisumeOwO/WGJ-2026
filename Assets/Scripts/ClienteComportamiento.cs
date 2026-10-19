@@ -4,6 +4,7 @@ public class ClienteComportamiento : MonoBehaviour
 {
     public float duracion = 2f; 
     private SpriteRenderer spriteRenderer;
+    public ScriptableObject personaje;
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
